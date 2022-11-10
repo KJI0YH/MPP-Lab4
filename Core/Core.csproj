@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Core</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Console\**" />
+    <Compile Remove="Core\**" />
+    <Compile Remove="Tests\**" />
+    <EmbeddedResource Remove="Console\**" />
+    <EmbeddedResource Remove="Core\**" />
+    <EmbeddedResource Remove="Tests\**" />
+    <None Remove="Console\**" />
+    <None Remove="Core\**" />
+    <None Remove="Tests\**" />
+  </ItemGroup>
+
+</Project>
