@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks.Dataflow;
+﻿using Core;
+using System.Threading.Tasks.Dataflow;
 
 namespace Dataflow
 {
@@ -9,11 +10,14 @@ namespace Dataflow
         private TransformBlock<string, string> _readerBlock;
         private TransformBlock<string, FileWithContent> _generatorBlock;
         private ActionBlock<FileWithContent> _writerBlock;
+        private string _savePath;
 
+        private TestsGenerator _testGenerator = new TestsGenerator();
 
-        public Pipeline(PipelineConfiguration configuration)
+        public Pipeline(PipelineConfiguration configuration, string savePath = "")
         {
             _configuration = configuration;
+            _savePath = savePath;
 
             _readerBlock = new TransformBlock<string, string>(
                 async path => await ReadFile(path),
@@ -55,7 +59,8 @@ namespace Dataflow
 
         private FileWithContent ProcessFile(string fileContent)
         {
-
+            TestInfo ti = _testGenerator.Generate(fileContent);
+            return new FileWithContent(_savePath + "\\" + ti.Name + ".cs", ti.Content);
         }
 
         private async Task WriteFile(FileWithContent fileWithContent)

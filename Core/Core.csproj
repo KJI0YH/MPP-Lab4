@@ -26,8 +26,4 @@
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="7.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Dataflow\Dataflow.csproj" />
-  </ItemGroup>
-
 </Project>
