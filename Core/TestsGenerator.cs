@@ -24,8 +24,7 @@ namespace Core
 
             // Get source classes
             var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
-                .Where(@class => @class.Modifiers.Any(SyntaxKind.PublicKeyword))
-                .Where(@class => !@class.Modifiers.Any(SyntaxKind.StaticKeyword)).ToList();
+                .Where(@class => @class.Modifiers.Any(SyntaxKind.PublicKeyword)).ToList();
 
             // Generate test classes
             var members = classes.Select(CreateTestClass).ToArray();
@@ -35,7 +34,7 @@ namespace Core
                 .WithUsings(usings)
                 .AddMembers(members);
 
-            return new TestInfo(classes.First().Identifier.Text, unit.NormalizeWhitespace().ToFullString());
+            return new TestInfo(classes.First().Identifier.Text + "_Test", unit.NormalizeWhitespace().ToFullString());
         }
 
         // Generate using from namespace
@@ -82,9 +81,6 @@ namespace Core
             var attribute = SingletonList(AttributeList(SingletonSeparatedList(
                 Attribute(IdentifierName("Test")))));
 
-            // Generate modifiers
-            var modifiers = TokenList(Token(SyntaxKind.PublicKeyword));
-
             // Generate return type
             var returnType = PredefinedType(Token(SyntaxKind.VoidKeyword));
 
@@ -119,12 +115,12 @@ namespace Core
                 {
                     IdIndex = -1;
                 }
-                string identificator = methods[i].Identifier.Text + (IdIndex == -1 ? "" : IdIndex.ToString()) + "_Test";
+                string identificator = methods[i].Identifier.Text + (IdIndex == -1 ? "" : "_" + IdIndex.ToString()) + "_Test";
 
                 // Generate methods
                 result.Add(MethodDeclaration(returnType, identificator)
                     .WithAttributeLists(attribute)
-                    .WithModifiers(modifiers)
+                    .WithModifiers(methods[i].Modifiers)
                     .WithParameterList(methods[i].ParameterList)
                     .WithBody(body));
             }
