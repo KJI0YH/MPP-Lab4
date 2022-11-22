@@ -121,7 +121,7 @@ namespace Core
                 result.Add(MethodDeclaration(returnType, identificator)
                     .WithAttributeLists(attribute)
                     .WithModifiers(methods[i].Modifiers)
-                    .WithParameterList(methods[i].ParameterList)
+                    //.WithParameterList(methods[i].ParameterList)
                     .WithBody(body));
             }
 
