@@ -29,14 +29,14 @@ namespace Core
             // Generate test classes
             var members = classes.Select(CreateTestClass).ToArray();
 
-            // Generate unit
-            var unit = CompilationUnit()
-                .WithUsings(usings)
-                .AddMembers(members);
-
             TestInfo[] tests = new TestInfo[classes.Count];
             for (int i = 0; i < classes.Count; i++)
             {
+                // Generate unit
+                var unit = CompilationUnit().
+                    WithUsings(usings)
+                    .AddMembers(members[i]);
+
                 tests[i] = new TestInfo(classes[i].Identifier.Text + "_Test", unit.NormalizeWhitespace().ToFullString());
             }
 
@@ -127,7 +127,6 @@ namespace Core
                 result.Add(MethodDeclaration(returnType, identificator)
                     .WithAttributeLists(attribute)
                     .WithModifiers(methods[i].Modifiers)
-                    .WithParameterList(methods[i].ParameterList)
                     .WithBody(body));
             }
 
