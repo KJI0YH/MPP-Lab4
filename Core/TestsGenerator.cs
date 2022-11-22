@@ -7,7 +7,7 @@ namespace Core
 {
     public class TestsGenerator
     {
-        public TestInfo Generate(string source)
+        public TestInfo[] Generate(string source)
         {
             CompilationUnitSyntax root = CSharpSyntaxTree.ParseText(source).GetCompilationUnitRoot();
 
@@ -34,7 +34,13 @@ namespace Core
                 .WithUsings(usings)
                 .AddMembers(members);
 
-            return new TestInfo(classes.First().Identifier.Text + "_Test", unit.NormalizeWhitespace().ToFullString());
+            TestInfo[] tests = new TestInfo[classes.Count];
+            for (int i = 0; i < classes.Count; i++)
+            {
+                tests[i] = new TestInfo(classes[i].Identifier.Text + "_Test", unit.NormalizeWhitespace().ToFullString());
+            }
+
+            return tests;
         }
 
         // Generate using from namespace

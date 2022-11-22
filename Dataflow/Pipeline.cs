@@ -8,8 +8,8 @@ namespace Dataflow
         private readonly PipelineConfiguration _configuration;
 
         private TransformBlock<string, string> _readerBlock;
-        private TransformBlock<string, FileWithContent> _generatorBlock;
-        private ActionBlock<FileWithContent> _writerBlock;
+        private TransformBlock<string, FileWithContent[]> _generatorBlock;
+        private ActionBlock<FileWithContent[]> _writerBlock;
         private string _savePath;
 
         private TestsGenerator _testGenerator = new TestsGenerator();
@@ -23,11 +23,11 @@ namespace Dataflow
                 async path => await ReadFile(path),
                 new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _configuration.MaxReadingTasks });
 
-            _generatorBlock = new TransformBlock<string, FileWithContent>(
+            _generatorBlock = new TransformBlock<string, FileWithContent[]>(
                 source => ProcessFile(source),
                 new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _configuration.MaxProcessingTasks });
 
-            _writerBlock = new ActionBlock<FileWithContent>(
+            _writerBlock = new ActionBlock<FileWithContent[]>(
                 async fwc => await WriteFile(fwc),
                 new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _configuration.MaxWritingTasks });
 
@@ -57,17 +57,25 @@ namespace Dataflow
             return result;
         }
 
-        private FileWithContent ProcessFile(string fileContent)
+        private FileWithContent[] ProcessFile(string fileContent)
         {
-            TestInfo ti = _testGenerator.Generate(fileContent);
-            return new FileWithContent(_savePath + "\\" + ti.Name + ".cs", ti.Content);
+            TestInfo[] ti = _testGenerator.Generate(fileContent);
+            FileWithContent[] fileWithContents = new FileWithContent[ti.Length];
+            for (int i = 0; i < ti.Length; i++)
+            {
+                fileWithContents[i] = new FileWithContent(_savePath + "\\" + ti[i].Name + ".cs", ti[i].Content);
+            }
+            return fileWithContents;
         }
 
-        private async Task WriteFile(FileWithContent fileWithContent)
+        private async Task WriteFile(FileWithContent[] filesWithContent)
         {
-            using (var streamWriter = new StreamWriter(fileWithContent.Path))
+            foreach (var file in filesWithContent)
             {
-                await streamWriter.WriteAsync(fileWithContent.Content);
+                using (var streamWriter = new StreamWriter(file.Path))
+                {
+                    await streamWriter.WriteAsync(file.Content);
+                }
             }
         }
     }

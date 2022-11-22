@@ -13,8 +13,11 @@ namespace Core.Tests
         {
             var classTests = _generator.Generate(ProgramText1 + ProgramText2 + ProgramText3);
 
-            var parsedClass = CSharpSyntaxTree.ParseText(classTests.Content).GetCompilationUnitRoot();
-            Assert.That(parsedClass.DescendantNodes().OfType<ClassDeclarationSyntax>().ToList(), Has.Count.EqualTo(3));
+            foreach (var test in classTests)
+            {
+                var parsedClass = CSharpSyntaxTree.ParseText(test.Content).GetCompilationUnitRoot();
+                Assert.That(parsedClass.DescendantNodes().OfType<ClassDeclarationSyntax>().ToList(), Has.Count.EqualTo(1));
+            }
         }
 
         [Test]
@@ -22,10 +25,12 @@ namespace Core.Tests
         {
             var classTests = _generator.Generate(ProgramText1 + ProgramText2 + ProgramText3);
 
-            var parsedClass = CSharpSyntaxTree.ParseText(classTests.Content).GetCompilationUnitRoot();
-            var usings = parsedClass.DescendantNodes().OfType<UsingDirectiveSyntax>().ToList();
+            foreach (var test in classTests)
+            {
+                var parsedClass = CSharpSyntaxTree.ParseText(test.Content).GetCompilationUnitRoot();
+                var usings = parsedClass.DescendantNodes().OfType<UsingDirectiveSyntax>().ToList();
 
-            string controlUsings = @"
+                string controlUsings = @"
                 System
                 System.Collections.Generic
                 System.Linq
@@ -33,15 +38,16 @@ namespace Core.Tests
                 NUnit.Framework
             ";
 
-            string namespaceUsings = @"
+                string namespaceUsings = @"
                 HelloWorld
                 WantSleep
                 One.AnotherOne.AndAnotherOne
             ";
 
-            foreach (var @using in usings)
-            {
-                Assert.That(controlUsings.Contains(@using.Name.ToString()) || namespaceUsings.Contains(@using.Name.ToString()));
+                foreach (var @using in usings)
+                {
+                    Assert.That(controlUsings.Contains(@using.Name.ToString()) || namespaceUsings.Contains(@using.Name.ToString()));
+                }
             }
         }
 
@@ -50,8 +56,14 @@ namespace Core.Tests
         {
             var classTests = _generator.Generate(ProgramText1 + ProgramText2 + ProgramText3);
 
-            var parsedClass = CSharpSyntaxTree.ParseText(classTests.Content).GetCompilationUnitRoot();
-            Assert.That(parsedClass.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList(), Has.Count.EqualTo(7));
+            var parsedClass = CSharpSyntaxTree.ParseText(classTests[0].Content).GetCompilationUnitRoot();
+            Assert.That(parsedClass.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList(), Has.Count.EqualTo(2));
+
+            parsedClass = CSharpSyntaxTree.ParseText(classTests[1].Content).GetCompilationUnitRoot();
+            Assert.That(parsedClass.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList(), Has.Count.EqualTo(2));
+
+            parsedClass = CSharpSyntaxTree.ParseText(classTests[2].Content).GetCompilationUnitRoot();
+            Assert.That(parsedClass.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList(), Has.Count.EqualTo(3));
         }
 
         [Test]
@@ -59,7 +71,7 @@ namespace Core.Tests
         {
             var classTests = _generator.Generate(ProgramText3);
 
-            var parsedClass = CSharpSyntaxTree.ParseText(classTests.Content).GetCompilationUnitRoot();
+            var parsedClass = CSharpSyntaxTree.ParseText(classTests[0].Content).GetCompilationUnitRoot();
             var methods = parsedClass.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
             Assert.That(methods, Has.Count.EqualTo(3));
             Assert.Multiple(() =>
